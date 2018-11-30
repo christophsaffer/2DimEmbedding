@@ -3,6 +3,9 @@ import pandas as pd
 
 #from sklearn.manifold import Isomap, LocallyLinearEmbedding, SpectralEmbedding, TSNE
 from sklearn import manifold
+from sklearn.model_selection import train_test_split
+import mb_modelbase as mbase
+
 
 if __name__ == '__main__':
 
@@ -30,8 +33,11 @@ if __name__ == '__main__':
 
     if len(df) > 1000:
         df = df.sample(1000)
-        df.reset_index(inplace=True)
-        #del df['index']
+        df.reset_index(inplace=True, drop=True)
+
+    train, test = train_test_split(df, test_size=0.1)
+    train.reset_index(inplace=True, drop=True)
+    test.reset_index(inplace=True, drop=True)
 
     conts = []
 
@@ -43,13 +49,36 @@ if __name__ == '__main__':
 
     for method, name in zip(methods, names):
         print("Start ", method, " algorithm ... ", end="")
-        df_org = df
+        df_org = train
+        df_test = test
         df_work = pd.DataFrame(df_org, columns=conts)
         funct = getattr(manifold, method)
         embedding = funct(n_components=2)
         df_trans = embedding.fit_transform(df_work)
-        df_org["Emb_dim1"] = df_trans[:, 0]
-        df_org["Emb_dim2"] = df_trans[:, 1]
-        string = "embedded_datasets/" + dataset_name + "_" + name + ".csv"
-        df_org.to_csv(string)
+        df_org = df_org.assign(Emb_dim1=df_trans[:,0])
+        df_org = df_org.assign(Emb_dim2=df_trans[:,1])
         print("DONE")
+        print("Fit model ... ", end="")
+        string = dataset_name + "_" + name + "_pred"
+        #df_org.to_csv(string)
+        mymod = mbase.MixableCondGaussianModel(string)
+        mymod.fit(df=df_org, bool_test_data=False)
+        print("DONE")
+        print("Start predictions ... ", end="")
+        emb1, emb2 = [], []
+        for row in df_test.iterrows():
+            mymod_cond = mymod.copy()
+            for col in df_test.columns:
+                mymod_cond = mymod_cond.copy().condition(mbase.Condition(col, "==", row[1][col]))
+            argmax = mymod_cond.aggregate("maximum")
+            emb1.append(argmax[-2])
+            emb2.append(argmax[-1])
+        print("DONE")
+        df_test = df_test.assign(Emb_dim1=emb1)
+        df_test = df_test.assign(Emb_dim2=emb2)
+
+        mymod.test_data = df_test
+        print(len(df_test), " --- ", len(df_org))
+        mymod.save(model=mymod, filename="fitted_emb_pred/" + string + ".mdl")
+
+        print("Saved model ", string, "successfully")
