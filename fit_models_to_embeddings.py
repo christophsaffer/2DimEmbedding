@@ -23,7 +23,7 @@ if __name__ == '__main__':
     parser.add_argument(
         "-i", "--indexcol", help="specify whether index column is given or not (Y/n)", type=str)
     parser.add_argument("-m", "--methods", help="specify which embedding algorithms should be used (available: isomap, lle, spectrale, tsne, mds)", nargs='+', default=["isomap", "lle", "spectrale", "tsne", "mds"])
-    parser.add_argument("-n", "--num_samples", help="Select a number of samples (default: 1000)", type=int, default=1000)
+    parser.add_argument("-n", "--num_samples", help="Select an upper number of samples (default: 1000)", type=int, default=1000)
 
     args = parser.parse_args()
 
@@ -40,7 +40,7 @@ if __name__ == '__main__':
         names.append(meth)
         methods.append(meth_nam[meth])
 
-    #meth_nam = {"isomap": "Isomap", "lle": "LocallyLinearEmbedding", "spectrale": "SpectralEmbedding", "tsne": "TSNE", "mds": "MDS"}
+    # How the lists should look like:
     #methods = ["Isomap", "LocallyLinearEmbedding", "SpectralEmbedding", "TSNE", "MDS"]
     #names = ["isomap", "lle", "spectrale", "tsne", "mds"]
 
