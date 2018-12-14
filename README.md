@@ -5,8 +5,9 @@ The package uses the scikit-learn algorithms for the embeddings and the lumen-or
 
 To create 2-dimensional embeddings with a fitted model:
 
-Manual:
+=== Manual ===
 
+<code>
 $ python fit_models_to_embeddings.py --help
 usage: fit_models_to_embeddings.py [-h] [-f FILE] [-i INDEXCOL]
                                    [-m METHODS [METHODS ...]] [-n NUM_SAMPLES]
@@ -24,11 +25,15 @@ optional arguments:
   -n NUM_SAMPLES, --num_samples NUM_SAMPLES
                         Select an upper number of samples (default: 1000)
 
-EXAMPLE for Embeddings:
+</code>
+
+=== EXAMPLE for Embeddings ===
 
 Calculates for the iris dataset two new embedded dimensions, one time with tsne, second time with mds for a maximum number of 100 datapoints
 
+<code>
 $ python fit_models_to_embeddings.py -f datasets/iris.csv -i n -m tsne mds -n 100
+</code>
 
 The outputs are saved in embedded_datasets (datasets) and fitted_emb_pred (models).
 
